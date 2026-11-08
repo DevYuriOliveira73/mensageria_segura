@@ -1,0 +1,36 @@
+{
+  "name": "mensageria_segura",
+  "version": "1.0.0",
+  "description": "Trabalho de Segurança",
+  "keywords": [
+    "mensageria",
+    "criptografia",
+    "seguranca"
+  ],
+  "homepage": "https://github.com/DevYuriOliveira73/mensageria_segura#readme",
+  "bugs": {
+    "url": "https://github.com/DevYuriOliveira73/mensageria_segura/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DevYuriOliveira73/mensageria_segura.git"
+  },
+  "license": "ISC",
+  "author": "Yuri & Eduardo",
+  "type": "module",
+  "main": "client/index.ts",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "node --import tsx --test tests/*.test.ts",
+    "client:watch": "tsx watch client/index.ts",
+    "client": "tsx client/index.ts",
+    "check": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
