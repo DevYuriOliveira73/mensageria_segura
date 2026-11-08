@@ -7,6 +7,8 @@ import {
   type KeyObject,
 } from 'node:crypto';
 
+import { validarTamanho } from '../helpers/validadores.js';
+
 const TAMANHO_CHAVE_RAW = 32;
 const TAMANHO_ID = 16;
 const TAMANHO_CHAVE_AES = 16;
@@ -122,10 +124,4 @@ function derivarChave(sharedSecret: Buffer, salt: Buffer, info: string): Buffer 
   return Buffer.from(
     hkdfSync('sha256', sharedSecret, salt, Buffer.from(info, 'ascii'), TAMANHO_CHAVE_AES),
   );
-}
-
-function validarTamanho(buffer: Buffer, tamanho: number, nome: string): void {
-  if (buffer.length !== tamanho) {
-    throw new Error(`${nome} deve ter exatamente ${tamanho} bytes`);
-  }
 }

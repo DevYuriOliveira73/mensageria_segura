@@ -8,6 +8,7 @@ import type { Socket } from 'node:net';
 
 import { codificarFrame, escreverTcp, LeitorTcp } from './framing.js';
 import { montarNonce, validarNonce, type PeerState } from '../cryptography/e2e.js';
+import { validarSeqNo, validarTamanho } from '../helpers/validadores.js';
 
 const TAMANHO_NONCE = 12;
 const TAMANHO_SEQ = 8;
@@ -27,11 +28,9 @@ export class CanalSeguro {
     keySend: Buffer,
     keyRecv: Buffer,
   ) {
-    if (clientIdBytes.length !== 16) {
-      throw new Error('client_id do canal deve ter exatamente 16 bytes');
-    }
-    validarChave(keySend);
-    validarChave(keyRecv);
+    validarTamanho(clientIdBytes, 16, 'client_id do canal');
+    validarTamanho(keySend, 16, 'Chave AES-128 do canal');
+    validarTamanho(keyRecv, 16, 'Chave AES-128 do canal');
     this.clientIdBytes = Buffer.from(clientIdBytes);
     this.estado = {
       keySend: Buffer.from(keySend),
@@ -103,16 +102,8 @@ function randomIvBase(): Buffer {
 }
 
 function seqBytes(seqNo: bigint): Buffer {
-  if (seqNo < 0n || seqNo > 0xffff_ffff_ffff_ffffn) {
-    throw new Error('seq_no do canal deve ser unsigned de 64 bits');
-  }
+  validarSeqNo(seqNo, 'seq_no do canal deve ser unsigned de 64 bits');
   const bytes = Buffer.alloc(TAMANHO_SEQ);
   bytes.writeBigUInt64BE(seqNo);
   return bytes;
-}
-
-function validarChave(key: Buffer): void {
-  if (key.length !== 16) {
-    throw new Error('Chave AES-128 do canal deve ter exatamente 16 bytes');
-  }
 }

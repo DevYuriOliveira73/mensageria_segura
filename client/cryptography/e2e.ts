@@ -4,13 +4,19 @@ import {
   randomBytes,
 } from 'node:crypto';
 
+import {
+  validarSeqNo,
+  validarTamanho,
+  validarTamanhoMaximo,
+} from '../helpers/validadores.js';
+
+const AES_KEY_LENGTH = 16;
 const IV_BASE_LENGTH = 4;
 const NONCE_LENGTH = 12;
 const TAG_LENGTH = 16;
 const ID_LENGTH = 16;
 const SEQ_LENGTH = 8;
 export const MAX_PLAINTEXT_E2E = 4096;
-const MAX_SEQ_NO = 0xffff_ffff_ffff_ffffn;
 
 export interface PeerState {
   keySend: Buffer;
@@ -31,8 +37,8 @@ export interface E2EFrame {
 }
 
 export function criarEstadoPar(keySend: Buffer, keyRecv: Buffer): PeerState {
-  validarChave(keySend);
-  validarChave(keyRecv);
+  validarTamanho(keySend, AES_KEY_LENGTH, 'Chave AES-128');
+  validarTamanho(keyRecv, AES_KEY_LENGTH, 'Chave AES-128');
   return {
     keySend: Buffer.from(keySend),
     keyRecv: Buffer.from(keyRecv),
@@ -85,9 +91,9 @@ export function encryptMessage(
   senderId: Buffer,
   recipientId: Buffer,
 ): E2EFrame {
-  validarPlaintext(plaintext);
-  validarId(senderId, 'senderId');
-  validarId(recipientId, 'recipientId');
+  validarTamanhoMaximo(plaintext, MAX_PLAINTEXT_E2E, 'Plaintext E2E');
+  validarTamanho(senderId, ID_LENGTH, 'senderId');
+  validarTamanho(recipientId, ID_LENGTH, 'recipientId');
   validarSeqNo(peer.seqSend);
 
   const seqNo = peer.seqSend;
@@ -112,9 +118,9 @@ export function encryptMessage(
 }
 
 export function decryptMessage(peer: PeerState, frame: E2EFrame): Buffer {
-  validarId(frame.senderId, 'senderId');
-  validarId(frame.recipientId, 'recipientId');
-  validarPlaintext(frame.ciphertext);
+  validarTamanho(frame.senderId, ID_LENGTH, 'senderId');
+  validarTamanho(frame.recipientId, ID_LENGTH, 'recipientId');
+  validarTamanhoMaximo(frame.ciphertext, MAX_PLAINTEXT_E2E, 'Plaintext E2E');
   if (frame.tag.length !== TAG_LENGTH) {
     throw new Error('tag AES-GCM deve ter exatamente 16 bytes');
   }
@@ -140,8 +146,8 @@ export function decryptMessage(peer: PeerState, frame: E2EFrame): Buffer {
 }
 
 export function codificarFrameE2E(frame: E2EFrame): Buffer {
-  validarId(frame.senderId, 'senderId');
-  validarId(frame.recipientId, 'recipientId');
+  validarTamanho(frame.senderId, ID_LENGTH, 'senderId');
+  validarTamanho(frame.recipientId, ID_LENGTH, 'recipientId');
   if (frame.nonce.length !== NONCE_LENGTH || frame.tag.length !== TAG_LENGTH) {
     throw new Error('Nonce ou tag com tamanho inválido');
   }
@@ -176,7 +182,7 @@ export function decodificarFrameE2E(bytes: Buffer): E2EFrame {
   const inicioTag = bytes.length - TAG_LENGTH;
   const ciphertext = Buffer.from(bytes.subarray(inicioCiphertext, inicioTag));
   const tag = Buffer.from(bytes.subarray(inicioTag));
-  validarPlaintext(ciphertext);
+  validarTamanhoMaximo(ciphertext, MAX_PLAINTEXT_E2E, 'Plaintext E2E');
 
   return { nonce, senderId, recipientId, seqNo, ciphertext, tag };
 }
@@ -185,28 +191,4 @@ function montarAad(senderId: Buffer, recipientId: Buffer, seqNo: bigint): Buffer
   const seqBytes = Buffer.alloc(SEQ_LENGTH);
   seqBytes.writeBigUInt64BE(seqNo);
   return Buffer.concat([senderId, recipientId, seqBytes]);
-}
-
-function validarChave(key: Buffer): void {
-  if (key.length !== 16) {
-    throw new Error('Chave AES-128 deve ter exatamente 16 bytes');
-  }
-}
-
-function validarId(id: Buffer, nome: string): void {
-  if (id.length !== ID_LENGTH) {
-    throw new Error(`${nome} deve ter exatamente 16 bytes`);
-  }
-}
-
-function validarPlaintext(plaintext: Buffer): void {
-  if (plaintext.length > MAX_PLAINTEXT_E2E) {
-    throw new Error(`Plaintext E2E excede ${MAX_PLAINTEXT_E2E} bytes`);
-  }
-}
-
-function validarSeqNo(seqNo: bigint): void {
-  if (seqNo < 0n || seqNo > MAX_SEQ_NO) {
-    throw new Error('seq_no deve ser um inteiro unsigned de 64 bits');
-  }
 }
