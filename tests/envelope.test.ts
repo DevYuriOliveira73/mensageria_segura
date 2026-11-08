@@ -5,7 +5,7 @@ import {
   analisarEnvelope,
   criarEnvelopeMensagem,
   serializarEnvelope,
-} from '../client/envelope.js';
+} from '../client/communication/envelope.js';
 
 const idA = '00000000-0000-4000-8000-000000000001';
 const idB = '00000000-0000-4000-8000-000000000002';

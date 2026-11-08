@@ -10,9 +10,9 @@ import {
   type Socket,
 } from 'node:net';
 
-import { CanalSeguro } from '../client/canal.js';
-import { codificarFrame, escreverTcp, LeitorTcp } from '../client/framing.js';
-import { uuidParaBytes } from '../client/keys.js';
+import { CanalSeguro } from '../client/communication/canal.js';
+import { codificarFrame, escreverTcp, LeitorTcp } from '../client/communication/framing.js';
+import { uuidParaBytes } from '../client/cryptography/keys.js';
 
 const clientId = '00000000-0000-4000-8000-000000000001';
 const clientIdBytes = uuidParaBytes(clientId);

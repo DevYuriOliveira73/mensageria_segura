@@ -8,7 +8,7 @@ import {
 } from 'node:crypto';
 import type { Socket } from 'node:net';
 
-import { derivarChavesCanal, gerarParX25519, segredoCompartilhado, type ParX25519 } from './keys.js';
+import { derivarChavesCanal, gerarParX25519, segredoCompartilhado, type ParX25519 } from '../cryptography/keys.js';
 import { escreverTcp, LeitorTcp } from './framing.js';
 
 const TAMANHO_PUBLICA_X25519 = 32;

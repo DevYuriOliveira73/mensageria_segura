@@ -9,7 +9,7 @@ import {
   toRaw,
   fromRaw,
   uuidParaBytes,
-} from '../client/keys.js';
+} from '../client/cryptography/keys.js';
 
 const idA = Buffer.from('00000000000040008000000000000001', 'hex');
 const idB = Buffer.from('00000000000040008000000000000002', 'hex');

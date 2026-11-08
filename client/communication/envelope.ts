@@ -1,4 +1,4 @@
-import { uuidParaBytes } from './keys.js';
+import { uuidParaBytes } from '../cryptography/keys.js';
 
 export interface MensagemEnvelope {
   kind: 'message';

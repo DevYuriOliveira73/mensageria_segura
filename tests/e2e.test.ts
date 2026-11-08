@@ -8,7 +8,7 @@ import {
   decryptMessage,
   encryptMessage,
   type PeerState,
-} from '../client/e2e.js';
+} from '../client/cryptography/e2e.js';
 
 const keyA2B = Buffer.from('000102030405060708090a0b0c0d0e0f', 'hex');
 const keyB2A = Buffer.from('101112131415161718191a1b1c1d1e1f', 'hex');

@@ -7,7 +7,7 @@ import { isUtf8 } from 'node:buffer';
 import type { Socket } from 'node:net';
 
 import { codificarFrame, escreverTcp, LeitorTcp } from './framing.js';
-import { montarNonce, validarNonce, type PeerState } from './e2e.js';
+import { montarNonce, validarNonce, type PeerState } from '../cryptography/e2e.js';
 
 const TAMANHO_NONCE = 12;
 const TAMANHO_SEQ = 8;

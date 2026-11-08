@@ -6,7 +6,7 @@ import test from 'node:test';
 import {
   ErroHandshake,
   validarRespostaHandshake,
-} from '../client/handshake.js';
+} from '../client/communication/handshake.js';
 
 const clientId = '00000000-0000-4000-8000-000000000001';
 const clientPublicKey = Buffer.alloc(32, 2);

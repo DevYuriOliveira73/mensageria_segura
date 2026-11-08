@@ -6,7 +6,7 @@ import {
   DecodificadorFrames,
   ErroFrame,
   LIMITE_FRAME,
-} from '../client/framing.js';
+} from '../client/communication/framing.js';
 
 test('codifica comprimento de 4 bytes big-endian e decodifica o payload', () => {
   const payload = Buffer.from('frame');
