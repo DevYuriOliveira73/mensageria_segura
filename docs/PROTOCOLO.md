@@ -178,14 +178,12 @@ administrativa explícita de registro.
 O código do servidor define os bytes atualmente aceitos, mas há diferenças que
 impedem tratar o protocolo E2E do PDF como já implementado:
 
-1. **Nomes dos campos do handshake:** o código usa `server_crt` e `signature`;
-   o README documenta `server.crt` e `rsa_signature`.
-2. **Identificador assinado:** o código assina `client_id` como UTF-8 (string de
+1. **Identificador assinado:** o código assina `client_id` como UTF-8 (string de
    tamanho variável); o PDF exige UUID binário de 16 bytes no material assinado.
-3. **Camadas criptográficas:** o handshake do código deriva chaves C2S/S2C
+2. **Camadas criptográficas:** o handshake do código deriva chaves C2S/S2C
    cliente-servidor. O PDF exige também chaves E2E distintas por par de clientes,
    derivadas das chaves públicas dos peers.
-4. **Frame E2E:** o servidor atual só lê frames de transporte C2S e não
+3. **Frame E2E:** o servidor atual só lê frames de transporte C2S e não
    encaminha diretamente os bytes recebidos: decifra a camada de transporte,
    interpreta JSON e recifra o envelope pela sessão S2C do destinatário. Para
    compatibilidade, o cliente inclui o frame binário E2E completo em Base64 no

@@ -67,21 +67,22 @@
   relay binário direto.
 - **Status:** pendente.
 
-## Handshake compatível com a implementação Python
+## Codificação do client_id na assinatura do handshake
 
-- **Contexto:** O README descreve campos `server.crt` e `rsa_signature`, e o
-  PDF define `client_id` binário de 16 bytes no material da assinatura. O código
-  Python envia `server_crt` e `signature`, e assina o UUID como texto UTF-8.
+- **Contexto:** O README do servidor e o código Python usam os campos
+  `server_crt` e `signature`. O código assina o UUID de `client_id` como texto
+  UTF-8, enquanto o PDF define `client_id` binário de 16 bytes no material da
+  assinatura.
 - **O que foi feito:** Para interoperabilidade, o cliente usará os nomes e o
   material de assinatura do código Python: `server_crt`, `signature` e
   `pk_S_raw || pk_C_raw || client_id_utf8 || salt_srv`.
 - **Por que é aceitável por ora:** É a assinatura produzida e o formato de
   resposta realmente enviados pelo servidor atual.
-- **Por que é uma dívida:** Difere dos nomes do README e da codificação de
-  `client_id` especificada no PDF.
+- **Por que é uma dívida:** A codificação de `client_id` no material assinado
+  difere da especificada no PDF.
 - **Como resolver depois:** Atualizar servidor, documentação e cliente juntos
-  para uma única codificação acordada; manter testes de assinatura para a
-  representação escolhida.
+  para a codificação de `client_id` acordada; manter testes de assinatura para
+  a representação escolhida.
 - **Status:** pendente.
 
 ## salt_srv do handshake em HKDF
