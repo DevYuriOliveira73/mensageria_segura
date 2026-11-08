@@ -48,6 +48,11 @@ class Server:
                 continue
 
     def create_session(self, conn: socket.socket) -> str | None:
+        with self.lock:
+            num_clients: int = len(self.sessions.keys())
+            if num_clients >= 5000:
+                return
+            
         raw_session_obj = self.keys_exchange(conn)
         if not raw_session_obj:
             conn.close()
@@ -72,9 +77,13 @@ class Server:
                 'c2s_key': meta['c2s']
             }
 
-            reader = StreamReader(conn, client_id, pre_session)
-            writer = StreamWriter(conn, client_id, pre_session)
-            pre_session['writer'] = writer
+            try:
+                reader = StreamReader(conn, client_id, pre_session)
+                writer = StreamWriter(conn, client_id, pre_session)
+                pre_session['writer'] = writer
+            except ValueError:
+                logger.error('Cliente enviou UUID inválido.')
+                return
 
             self.readers[conn] = reader
             self.sessions[client_id] = pre_session
@@ -234,6 +243,7 @@ class Server:
                             self.broadcast('user_exit', recipient_id)
                     else:
                         logger.warning(f'Destinatário {recipient_id} não encontrado/offline')
+                        self.send_control_message(sender_id, 'server_alert', ['cliente offline'])
 
             except Exception as loop_exc:
                 logger.error(f"Erro na thread handle_sessions: {loop_exc}")

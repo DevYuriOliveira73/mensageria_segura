@@ -6,6 +6,7 @@ import struct
 import json
 
 from src.crypto.crypto import Cipher
+import logging
 
 
 class Stream:
@@ -66,19 +67,25 @@ class StreamReader(Stream):
         # 1. Lê os 4 bytes do tamanho do frame
         length_bytes = self._recv_exact(4)
         if not length_bytes:
+            logging.warning(f'Cliente {self.client_id} não enviou os bytes de tamanho do frame')
             return None
 
         tcp_frame_len = struct.unpack('!I', length_bytes)[0]
 
         # 2. Lê o corpo do frame
         frame_body = self._recv_exact(tcp_frame_len)
-        if not frame_body or len(frame_body) < 20:
+        if not frame_body:
+            logging.warning(f'Cliente {self.client_id} enviou um pacote inválido')
+            return None
+        if len(frame_body) < 20:
+            logging.warning(f'Cliente {self.client_id} enviou corpo do frame menor que o permitido')
             return None
 
         # 3. Extrai nonce (12B) e seq_no inteiro (8B)
         nonce, seq_no = struct.unpack('!12sQ', frame_body[:20])
 
         if seq_no != self.session['seq_recv']:
+            logging.warning(f'Cliente {self.client_id} enviou dados com seq_no inválidos!')
             return None
 
         with self.lock:

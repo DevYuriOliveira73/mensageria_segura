@@ -21,8 +21,8 @@ O processo de handshake é responsável por estabelecer um segredo compartilhado
 ```json
 {
     "pk_S": "...",
-    "server.crt": "...",
-    "rsa_signature": "...",
+    "server_crt": "...",
+    "signature": "...",
     "salt_srv": "..."
 }
 ```
@@ -260,5 +260,24 @@ Notifica os clientes sobre a saída de um usuário.
 | Campo | Descrição |
 |---|---|
 | `client_id` | Identificador do cliente que saiu. |
+
+- Quantidade de elementos em `data`: **1**.
+
+#### 5.2.3. `server_alert`
+
+Notifica um cliente sobre algum erro no encaminhamento da mensagem.
+
+```json
+{
+    "info": "server_alert",
+    "data": [
+        "alerta do servidor"
+    ]
+}
+```
+
+| Campo | Descrição |
+|---|---|
+| `alerta do servidor` | Mensagem de alerta do servidor |
 
 - Quantidade de elementos em `data`: **1**.
