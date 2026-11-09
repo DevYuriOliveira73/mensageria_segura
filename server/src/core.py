@@ -94,10 +94,11 @@ class Server:
 
     def broadcast(self, info: str, client_id: str) -> None:
         with self.lock:
-            if client_id not in self.sessions:
-                return
-            raw_client_pk: bytes = self.sessions[client_id]['public_key']
-            client_pk_b64: str = base64.b64encode(raw_client_pk).decode('ascii')
+            if info == 'new_user':
+                if client_id not in self.sessions:
+                    return
+                raw_client_pk: bytes = self.sessions[client_id]['public_key']
+                client_pk_b64: str = base64.b64encode(raw_client_pk).decode('ascii')
             active_clients = list(self.sessions.items())
 
         for target_id, session_data in active_clients:

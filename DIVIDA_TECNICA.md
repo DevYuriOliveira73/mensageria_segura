@@ -114,4 +114,4 @@
   `broadcast` no servidor ou introduzir uma notificação que não dependa de a
   sessão removida continuar na tabela. A pasta `server/` permanece fora do
   escopo deste cliente.
-- **Status:** pendente.
+- **Status:** corrigido.
