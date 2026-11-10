@@ -4,9 +4,12 @@ import { X509Certificate } from 'node:crypto';
 import test from 'node:test';
 
 import {
-  ErroHandshake,
   validarRespostaHandshake,
 } from '../client/communication/handshake.js';
+
+import {
+  ErroHandshake
+  } from '../client/helpers/erroHandshake.js';
 
 const clientId = '00000000-0000-4000-8000-000000000001';
 const clientPublicKey = Buffer.alloc(32, 2);

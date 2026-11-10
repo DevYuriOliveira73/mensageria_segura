@@ -7,6 +7,7 @@ import {
   type KeyObject,
 } from 'node:crypto';
 import type { Socket } from 'node:net';
+import { ErroHandshake } from '../helpers/erroHandshake.js';
 
 import { derivarChavesCanal, gerarParX25519, segredoCompartilhado, type ParX25519 } from '../cryptography/keys.js';
 import { escreverTcp, LeitorTcp } from './framing.js';
@@ -24,13 +25,7 @@ export interface SessaoHandshake {
   };
 }
 
-export class ErroHandshake extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'ErroHandshake';
-  }
-}
-
+//Envia a primeira mensagem (to serv)
 export async function executarHandshake(
   socket: Socket,
   leitor: LeitorTcp,
@@ -74,6 +69,7 @@ export function validarRespostaHandshake(
   const certificateBytes = decodificarBase64(value.server_crt, 'server_crt');
   const signature = decodificarBase64(value.signature, 'signature');
   const salt = decodificarBase64(value.salt_srv, 'salt_srv');
+
   if (serverPublicKey.length !== TAMANHO_PUBLICA_X25519) {
     throw new ErroHandshake('pk_S deve ter exatamente 32 bytes');
   }
