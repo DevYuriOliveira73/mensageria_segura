@@ -17,32 +17,17 @@ const TAMANHO_ID = 16;
 const TAMANHO_CHAVE_AES = 16;
 const PREFIXO_SPKI_X25519 = Buffer.from('302a300506032b656e032100', 'hex');
 
-// gera a EC25519
+// EC25519
 export function gerarParX25519(): ParX25519 {
   const { privateKey, publicKey } = generateKeyPairSync('x25519');
   return { privateKey, publicKey: toRaw(publicKey) };
 }
 
-export function toRaw(publicKey: KeyObject): Buffer {
-  const der = publicKey.export({ format: 'der', type: 'spki' });
-  if (
-    der.length !== PREFIXO_SPKI_X25519.length + TAMANHO_CHAVE_RAW ||
-    !der.subarray(0, PREFIXO_SPKI_X25519.length).equals(PREFIXO_SPKI_X25519)
-  ) {
-    throw new Error('Chave pública não é X25519 no formato SPKI esperado');
-  }
-  return Buffer.from(der.subarray(PREFIXO_SPKI_X25519.length));
-}
-
-export function fromRaw(publicKey: Buffer): KeyObject {
-  if (publicKey.length !== TAMANHO_CHAVE_RAW) {
-    throw new Error('Chave pública X25519 raw deve ter exatamente 32 bytes');
-  }
-  return createPublicKey({
-    key: Buffer.concat([PREFIXO_SPKI_X25519, publicKey]),
-    format: 'der',
-    type: 'spki',
-  });
+//HKDF assim derivo as chaves pelo segredo compartilhado...
+function derivarChave(sharedSecret: Buffer, salt: Buffer, info: string): Buffer {
+  return Buffer.from(
+    hkdfSync('sha256', sharedSecret, salt, Buffer.from(info, 'ascii'), TAMANHO_CHAVE_AES),
+  );
 }
 
 // gera o segredo compartilhado
@@ -90,6 +75,7 @@ export function saltDoPar(
     .subarray(0, 16);
 }
 
+//hkdf c->s s->c
 export function derivarChavesPar(
   localId: Buffer,
   localPublicKey: Buffer,
@@ -107,9 +93,26 @@ export function derivarChavesPar(
     : { keySend: keyB2A, keyRecv: keyA2B, sendLabel: 'B2A', receiveLabel: 'A2B' };
 }
 
-//HKDF assim derivo as chaves pelo segredo compartilhado...
-function derivarChave(sharedSecret: Buffer, salt: Buffer, info: string): Buffer {
-  return Buffer.from(
-    hkdfSync('sha256', sharedSecret, salt, Buffer.from(info, 'ascii'), TAMANHO_CHAVE_AES),
-  );
+
+
+export function toRaw(publicKey: KeyObject): Buffer {
+  const der = publicKey.export({ format: 'der', type: 'spki' });
+  if (
+    der.length !== PREFIXO_SPKI_X25519.length + TAMANHO_CHAVE_RAW ||
+    !der.subarray(0, PREFIXO_SPKI_X25519.length).equals(PREFIXO_SPKI_X25519)
+  ) {
+    throw new Error('Chave pública não é X25519 no formato SPKI esperado');
+  }
+  return Buffer.from(der.subarray(PREFIXO_SPKI_X25519.length));
+}
+
+export function fromRaw(publicKey: Buffer): KeyObject {
+  if (publicKey.length !== TAMANHO_CHAVE_RAW) {
+    throw new Error('Chave pública X25519 raw deve ter exatamente 32 bytes');
+  }
+  return createPublicKey({
+    key: Buffer.concat([PREFIXO_SPKI_X25519, publicKey]),
+    format: 'der',
+    type: 'spki',
+  });
 }

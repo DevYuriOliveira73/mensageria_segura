@@ -24,7 +24,7 @@ from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 HOST = "127.0.0.1"
 PORT = 9000
 
-CERT_PATH = "./certificado.crt"
+CERT_PATH = "../server/src/keys/certificado.crt"
 
 MAX_FRAME_SIZE = 10 * 1024 * 1024
 

@@ -12,8 +12,8 @@ import {
 import {
   receberMensagens,
   processarComando,
-  type Peer,
 } from './application/mensagens.js';
+import type { Peer } from './application/interfaces.js';
 
 const HOST_PADRAO = '127.0.0.1';
 const PORTA_PADRAO = 9000;

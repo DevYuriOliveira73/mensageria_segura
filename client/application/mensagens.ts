@@ -8,9 +8,8 @@ import {
   decodificarChavePublica,
   serializarEnvelope,
   uuidEmBytes,
-  type ControleEnvelope,
-  type MensagemEnvelope,
 } from '../communication/envelope.js';
+import type { ControleEnvelope, MensagemEnvelope } from '../communication/types.js';
 import {
   codificarFrameE2E,
   criarEstadoPar,
@@ -21,11 +20,7 @@ import {
   type PeerState,
 } from '../cryptography/e2e.js';
 import { derivarChavesPar, segredoCompartilhado } from '../cryptography/keys.js';
-
-export interface Peer {
-  publicKey: Buffer;
-  state: PeerState;
-}
+import type { Peer } from './interfaces.js';
 
 export async function receberMensagens(
   canal: CanalSeguro,
@@ -136,6 +131,7 @@ function tratarMensagem(
     throw new Error('recipient_id do frame E2E não corresponde ao cliente');
   }
 
+  //DESCRIPTOGRAFA
   const plaintext = decryptMessage(peer.state, frame);
   if (!isUtf8(plaintext)) {
     throw new Error('Mensagem E2E não é UTF-8 válido');
@@ -174,6 +170,7 @@ export async function processarComando(
     throw new Error(`Mensagem excede o limite de ${MAX_PLAINTEXT_E2E} bytes`);
   }
 
+  //CRIPTOGRAFA
   const frame = encryptMessage(
     peer.state,
     plaintext,
