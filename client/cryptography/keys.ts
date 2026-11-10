@@ -8,31 +8,16 @@ import {
 } from 'node:crypto';
 
 import { validarTamanho } from '../helpers/validadores.js';
+import type { ChavesCanal, ChavesPar, ParX25519 } from './types.js';
+
+export type { ChavesCanal, ChavesPar, DirecaoE2E, ParX25519 } from './types.js';
 
 const TAMANHO_CHAVE_RAW = 32;
 const TAMANHO_ID = 16;
 const TAMANHO_CHAVE_AES = 16;
 const PREFIXO_SPKI_X25519 = Buffer.from('302a300506032b656e032100', 'hex');
 
-export type DirecaoE2E = 'A2B' | 'B2A';
-
-export interface ParX25519 {
-  privateKey: KeyObject;
-  publicKey: Buffer;
-}
-
-export interface ChavesPar {
-  keySend: Buffer;
-  keyRecv: Buffer;
-  sendLabel: DirecaoE2E;
-  receiveLabel: DirecaoE2E;
-}
-
-export interface ChavesCanal {
-  c2s: Buffer;
-  s2c: Buffer;
-}
-
+// gera a EC25519
 export function gerarParX25519(): ParX25519 {
   const { privateKey, publicKey } = generateKeyPairSync('x25519');
   return { privateKey, publicKey: toRaw(publicKey) };
@@ -60,8 +45,17 @@ export function fromRaw(publicKey: Buffer): KeyObject {
   });
 }
 
+// gera o segredo compartilhado
 export function segredoCompartilhado(privateKey: KeyObject, peerPublicKey: Buffer): Buffer {
   return diffieHellman({ privateKey, publicKey: fromRaw(peerPublicKey) });
+}
+
+// derivar as chaves do canal
+export function derivarChavesCanal(sharedSecret: Buffer, salt: Buffer): ChavesCanal {
+  return {
+    c2s: derivarChave(sharedSecret, salt, 'c2s'),
+    s2c: derivarChave(sharedSecret, salt, 's2c'),
+  };
 }
 
 export function uuidParaBytes(clientId: string): Buffer {
@@ -113,13 +107,7 @@ export function derivarChavesPar(
     : { keySend: keyB2A, keyRecv: keyA2B, sendLabel: 'B2A', receiveLabel: 'A2B' };
 }
 
-export function derivarChavesCanal(sharedSecret: Buffer, salt: Buffer): ChavesCanal {
-  return {
-    c2s: derivarChave(sharedSecret, salt, 'c2s'),
-    s2c: derivarChave(sharedSecret, salt, 's2c'),
-  };
-}
-
+//HKDF assim derivo as chaves pelo segredo compartilhado...
 function derivarChave(sharedSecret: Buffer, salt: Buffer, info: string): Buffer {
   return Buffer.from(
     hkdfSync('sha256', sharedSecret, salt, Buffer.from(info, 'ascii'), TAMANHO_CHAVE_AES),

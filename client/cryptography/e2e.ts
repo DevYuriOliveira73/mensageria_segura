@@ -49,7 +49,6 @@ export function criarEstadoPar(keySend: Buffer, keyRecv: Buffer): PeerState {
   };
 }
 
-// DÍVIDA TÉCNICA: ver DIVIDA_TECNICA.md
 export function montarNonce(ivBase: Buffer, seqNo: bigint): Buffer {
   if (ivBase.length !== IV_BASE_LENGTH) {
     throw new Error('ivBase deve ter exatamente 4 bytes');
@@ -62,7 +61,6 @@ export function montarNonce(ivBase: Buffer, seqNo: bigint): Buffer {
   return nonce;
 }
 
-// DÍVIDA TÉCNICA: ver DIVIDA_TECNICA.md
 export function validarNonce(
   nonce: Buffer,
   seqNo: bigint,

@@ -30,6 +30,8 @@ async function main(): Promise<void> {
   try {
     const leitor = new LeitorTcp(socket);
     const certificado = readFileSync(CERTIFICADO_PINADO);
+
+    // Executa o handshake e estabelece o canal seguro
     const sessao = await executarHandshake(socket, leitor, certificado);
     const canal = new CanalSeguro(
       socket,
